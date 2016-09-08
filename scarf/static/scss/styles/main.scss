@@ -141,6 +141,13 @@ body {
     &#bsor {
       padding-top: 100px;
 
+      .navbar-brand {
+        position: relative;
+        display: block;
+        z-index: 10000;
+        cursor: pointer;
+      }
+
       #navbar {
         position: relative;
         z-index: 1000;
@@ -204,6 +211,17 @@ body {
         }
 
       }
+
+      a {
+        &.scarf {
+          display: block;
+          overflow: hidden;
+          max-width: 640px;
+          max-height: 200px;
+          width: 100%;
+        }
+      }
+
     }
   }
 }
@@ -289,9 +307,11 @@ body {
       /* END NAV */
 
 
-      img {
+      a {
         &.scarf {
-          max-width: 500px;
+          display: block;
+          overflow: hidden;
+          max-width: 640px;
           max-height: 200px;
           width: 100%;
         }
