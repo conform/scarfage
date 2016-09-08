@@ -77,13 +77,27 @@ def uid_by_item(item):
     except IndexError:
         return
 
-def item_search(query):
-    sql = 'select uid from items where name like %(query)s;'
-    result = doquery(sql, {'query': '%{}%'.format(query)})
+def item_search(query, limit=10, offset=0, sort='name'):
+    ret = dict()
+    ret['items'] = list()
 
-    ret = list()
+    sql = 'select count(*) from items where name like %(query)s;'
+    ret['maxresults'] = doquery(sql, {'query': '%{}%'.format(query)})[0][0]
+
+    if ret['maxresults'] == 0:
+        return ret
+
+    sorts = {'name': 'name asc', 'added': 'added desc', 'modified': 'modified desc'}
+
+    if sort not in sorts.keys():
+        sort = 'name'
+
+    sql = 'select uid from items where name like %(query)s order by {} limit %(limit)s offset %(offset)s;'.format(sorts[sort])
+    result = doquery(sql, {'query': '%{}%'.format(query), 'limit': limit, 'offset': offset})
+
     for item in result:
-        ret.append(SiteItem.create(item[0]))
+        ret['items'].append(SiteItem.create(item[0]))
+
     return ret
 
 class ItemHist(object):
@@ -234,9 +248,16 @@ class SiteItem(object):
         if not edit:
             edit = self.description()
 
+        images = list()
+        for image in self.images():
+            images.append(image.uid)
+
         return dict(body=self.body(edit),
+                    uid=self.uid,
                     name=self.name,
                     description=self.description(),
+                    tags=self.tags_with_parents(),
+                    images=images,
                     added=str(self.added),
                     modified=str(self.modified))
 
@@ -449,6 +470,7 @@ def new_item(name, description, userid, ip):
 
     return itemid 
 
+# TODO: remove this once reimplemented with JS. #81
 @memoize_with_expiry(item_cache, long_cache_persist)
 def latest_items(limit=0):
     items = list()

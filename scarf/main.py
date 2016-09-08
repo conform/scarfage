@@ -10,7 +10,7 @@ import core
 import config
 import markdown
 from scarf import app
-from flask import render_template, session, request, flash
+from flask import render_template, session, request, flash, send_from_directory
 from core import redirect_back
 from nocache import nocache
 
@@ -51,6 +51,8 @@ class PageData(object):
        * deobfuscate     - core.deobfuscate()
        * uid_by_user     - core.uid_by_user()
        * user_by_uid     - core.user_by_uid()
+       * uid_by_item     - core.uid_by_item()
+       * item_by_uid     - core.item_by_uid()
        * render_markdown - render_markdown()
 
     """
@@ -70,6 +72,8 @@ class PageData(object):
         self.deobfuscate = core.deobfuscate
         self.uid_by_user = core.uid_by_user
         self.user_by_uid = core.user_by_uid
+        self.uid_by_item = core.uid_by_item
+        self.item_by_uid = core.item_by_uid
         self.render_markdown = render_markdown
 
         if 'username' in session:
@@ -118,7 +122,7 @@ def request_wants_json():
         request.accept_mimetypes['text/html']
 
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found(error=None):
     """
     Error handler for 404 errors
 
@@ -135,7 +139,7 @@ def page_not_found(error):
     return render_template('error.html', pd=pd), 404
 
 @app.errorhandler(500)
-def own_goal(error):
+def own_goal(error=None):
     """
     Error handler for 500 errors
 
@@ -185,6 +189,11 @@ def accessdenied():
     pd.errortext = "Access Denied"
     return render_template('error.html', pd=pd), 403
 
+@app.route('/robots.txt')
+#@app.route('/sitemap.xml')
+def static_from_root():
+    return send_from_directory(app.static_folder, request.path[1:])
+
 @app.route('/')
 @nocache
 def index():
@@ -198,6 +207,7 @@ def index():
 
     pd.welcomebanner = core.SiteString('welcomebanner').string
 
+    # TODO: remove this once reimplemented with JS. #81
     pd.items = core.latest_items(10)
 
     return render_template('index.html', pd=pd)

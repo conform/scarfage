@@ -1,7 +1,6 @@
 import datetime
 import base64
 import bcrypt
-import hashlib
 import logging
 #import hmac
 import json
@@ -17,6 +16,7 @@ from mail import send_mail
 from memoize import memoize_with_expiry, cache_persist, long_cache_persist
 import items
 import messages 
+import utility
 
 logger = logging.getLogger(__name__)
 
@@ -188,7 +188,10 @@ class SiteUserProfile(object):
                  from user_profiles
                  where uid = %(uid)s; """
         result = doquery(sql, { 'uid': self.uid })
-        return result[0][0]
+        try:
+            return result[0][0]
+        except IndexError:
+            return None
 
     def new_avatar(self, image):
         profile_cache = dict()
@@ -284,14 +287,50 @@ class SiteUser(object):
         """
         return OwnWant(itemid, self.uid)
 
+    mwi_cache = dict()
+    @memoize_with_expiry(mwi_cache, long_cache_persist)
+    def mwi(self):
+        """
+        Get a count of unread messages and trades for a user
+
+        :return: (unread messages, unread trades)
+        """
+
+        num_messages = 0
+        num_trades = 0
+
+        sql = """select uid,status from messages
+                 where touserid = %(touid)s
+                 order by sent desc limit 100;"""
+
+        result = doquery(sql, { 'touid': self.uid })
+
+        for item in result:
+            message = messages.TradeMessage.create(item[0])
+
+            if message.delete_status(self.username):
+                continue
+
+            read = message.read_status(self.username)
+
+            if not read:
+                if item[1]:
+                    num_trades = num_trades + 1
+                else:
+                    num_messages = num_messages + 1
+
+        return (num_messages, num_trades)
+
     @memoize_with_expiry(message_cache, cache_persist)
-    def messages(self):
+    def messages(self, trash=False):
         """
         Get all trades and private messages for a user
 
+        :param trash: Only show deleted messages. Permanent deletion is not currently implemented.
         :return: list of PrivateMessage and TradeMessage objects
         """
 
+        mwi_cache = dict()
         ret = list()
         sql = """select uid,status from messages
                  where fromuserid = %(fromuid)s or touserid = %(touid)s
@@ -300,12 +339,17 @@ class SiteUser(object):
         result = doquery(sql, { 'fromuid': self.uid, 'touid': self.uid })
 
         for item in result:
-            if item[1] >= messages.messagestatus['unread_pm']:
-                message = messages.PrivateMessage.create(item[0])
-            else:
+            if item[1]:
                 message = messages.TradeMessage.create(item[0])
+            else:
+                message = messages.PrivateMessage.create(item[0])
 
-            ret.append(message)
+            deleted = message.delete_status(self.username)
+
+            if trash:
+                deleted = not deleted
+            if not deleted:
+                ret.append(message)
 
         return ret
 
@@ -423,24 +467,15 @@ class SiteUser(object):
         doquery(sql, {"uid": self.uid})
 
 
-def hashize(string):
-    """
-    Hash and base 64 encode a string
-
-    :param string: String to encode
-    :return: base64.b64encode(hashlib.sha384(string).digest())
-    """
-    return base64.b64encode(hashlib.sha384(string).digest())
-
 def gen_pwhash(password):
     """
     Generate a password hash for the given cleartext
 
     :param password: Cleartext password to hash
-    :return: bcrypt.hashpw(hashize(password), bcrypt.gensalt(config.BCRYPT_ROUNDS))
+    :return: bcrypt.hashpw(utility.hashize(password), bcrypt.gensalt(config.BCRYPT_ROUNDS))
     """
 
-    return bcrypt.hashpw(hashize(password), bcrypt.gensalt(config.BCRYPT_ROUNDS))
+    return bcrypt.hashpw(utility.hashize(password), bcrypt.gensalt(config.BCRYPT_ROUNDS))
 
 def verify_pw(password, pwhash):
     """
@@ -451,7 +486,7 @@ def verify_pw(password, pwhash):
     :return: True or False
     """
 
-    if (bcrypt.hashpw(hashize(password), pwhash) == pwhash):
+    if (bcrypt.hashpw(utility.hashize(password), pwhash) == pwhash):
         return True
 
     return False
@@ -460,7 +495,7 @@ def verify_pw(password, pwhash):
 python 2.7.7+ only
 
 def verify_pw(password, pwhash):
-    if (hmac.compare_digest(bcrypt.hashpw(hashize(password), pwhash), pwhash)):
+    if (hmac.compare_digest(bcrypt.hashpw(utility.hashize(password), pwhash), pwhash)):
         return True
 
     return False

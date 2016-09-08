@@ -1,9 +1,9 @@
 *.pyc
+*.log
 blns.base64.json
-tests.log
 venv/*
 scarf/static/scss/.sass-cache
-.sass-cache
+testimgs
 .gulp-scss-cache
-node_modules
-
+.sass-cache
+_scss
