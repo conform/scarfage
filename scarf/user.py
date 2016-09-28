@@ -66,6 +66,7 @@ def login():
         user.seen()
 
         session['username'] = user.username
+        session.permanent = True
         flash('You were successfully logged in')
         return redirect_back('index')
 

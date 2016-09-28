@@ -3,18 +3,21 @@ import base64
 import logging
 import datetime
 import bleach
+import markdown
 import os, sys
 from pytz import timezone
+from flask import render_template, session, request, flash, send_from_directory
+from datetime import timedelta
 
 import core
 import config
-import markdown
 from scarf import app
-from flask import render_template, session, request, flash, send_from_directory
 from core import redirect_back
 from nocache import nocache
 
 md_extensions = ['markdown.extensions.extra', 'markdown.extensions.nl2br', 'markdown.extensions.sane_lists']
+
+app.permanent_session_lifetime = timedelta(days=30)
 
 if 'LOGFILE' in config.__dict__:
     logging.basicConfig(filename=config.LOGFILE,level=logging.INFO)
