@@ -166,20 +166,14 @@ class SiteUserProfile(object):
 
             self.uid = uid
             self.profile = json.loads(result[0][0])
-
-            # Delete this at some point once all data has been moved, shouldn't take long
-            if 'avatar' in self.profile:
-                logger.info('avatar fixup applied for user id {}'.format(uid))
-                self.new_avatar(self.profile['avatar'])
-                del self.profile['avatar']
-                self.update()
         except (Warning, IndexError):
             # return defaults
+            # TODO: default profile dict
             self.profile = dict()
             self.profile['timezone'] = "America/Los_Angeles"
 
-            #sql = "insert into user_profiles (uid, json) values (%(uid)s, %(json)s);"
-            #result = doquery(sql, { 'uid': uid, 'json': json.dumps(self.profile)})
+            sql = "insert into user_profiles (uid, json) values (%(uid)s, %(json)s);"
+            result = doquery(sql, { 'uid': uid, 'json': json.dumps(self.profile)})
  
     def update(self):
         profile_cache = dict()
