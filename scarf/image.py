@@ -1,7 +1,7 @@
 from scarf import app
 from core import redirect_back, SiteImage, NoImage, new_img
 from main import page_not_found, PageData
-from access import check_mod
+from access import check_mod, check_logged_in
 import core
 
 from flask import make_response, url_for, request, render_template, session, flash, redirect
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 #TODO: rename to /image/new
 @app.route('/newimg', methods=['POST'])
+@check_logged_in
 def newimg():
     """
     :URL: /newimg

@@ -1,6 +1,7 @@
 from scarf import app
 from core import SiteUser, NoUser, SiteItem, NoItem, new_item, redirect_back, new_edit, uid_by_item, latest_items
 from main import page_not_found, PageData, request_wants_json, render_markdown
+from access import check_logged_in
 from nocache import nocache
 import core
 import json
@@ -132,6 +133,7 @@ def show_item(item_id, edit=None):
         return render_template('item.html', pd=pd)
 
 @app.route('/item/<item_id>/revert/<edit>')
+@check_logged_in
 @nocache
 def revert_item_edit(item_id, edit):
     pd = PageData()
@@ -167,6 +169,7 @@ def show_item_history(item_id):
 
 @app.route('/item/<item_id>/edit', methods=['GET', 'POST'])
 @app.route('/item/edit', methods=['GET', 'POST'])
+@check_logged_in
 @nocache
 def edititem(item_id=None):
     pd = PageData()
@@ -228,6 +231,7 @@ def edititem(item_id=None):
     return render_template('edititem.html', pd=pd)
 
 @app.route('/item/tag', methods=['POST'])
+@check_logged_in
 @nocache
 def tagitem():
     pd = PageData()
@@ -249,6 +253,7 @@ def tagitem():
                 return page_not_found()
 
 @app.route('/item/<item_id>/untag/<tag_ob>')
+@check_logged_in
 def untag_item(item_id, tag_ob):
     try:
         item = SiteItem.create(item_id)

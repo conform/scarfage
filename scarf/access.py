@@ -3,6 +3,7 @@ from flask import redirect, url_for, session, flash
 import logging
 
 from main import PageData
+from core import redirect_back
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,20 @@ def check_mod(func):
         if not check_level(10):
             flash('You are not a moderator')
             return redirect(url_for('accessdenied'))
+        else:
+            return func(*args, **kwargs) #
+    return inner
+
+def check_logged_in(func):
+    """
+    Decorator to check if the user is logged in and warn them if they aren't
+    """
+
+    @wraps(func)
+    def inner(*args, **kwargs): #1
+        if not check_level(1):
+            flash('Please log in, accounts are free!')
+            return redirect_back(url_for('accessdenied'))
         else:
             return func(*args, **kwargs) #
     return inner

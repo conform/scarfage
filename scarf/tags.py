@@ -1,7 +1,7 @@
 from scarf import app
 from core import redirect_back, SiteImage, NoImage, user_by_uid, Tags
 from main import page_not_found, PageData
-from access import check_mod
+from access import check_mod, check_logged_in
 
 from flask import redirect, url_for, render_template, session, request, flash
  
@@ -46,6 +46,7 @@ def mod_tag_delete(tag):
         return redirect_back('/tag/' + tag)
 
 @app.route('/tag/new', methods=['POST'])
+@check_logged_in
 def newtag():
     pd = PageData()
 
