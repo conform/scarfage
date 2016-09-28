@@ -63,6 +63,11 @@ class PageData(object):
         except NameError:
             self.prefix = ''
 
+        try:
+            self.siteurl = config.SITEURL
+        except NameError:
+            self.siteurl = ''
+
         self.accesslevels = core.accesslevels
 
         self.encode = base64.b32encode
@@ -201,6 +206,7 @@ def accessdenied():
     return render_template('error.html', pd=pd), 403
 
 @app.route('/robots.txt')
+@app.route('/favicon.ico')
 #@app.route('/sitemap.xml')
 def static_from_root():
     return send_from_directory(app.static_folder, request.path[1:])

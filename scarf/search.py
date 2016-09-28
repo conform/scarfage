@@ -96,7 +96,8 @@ def search():
     elif pd.search_type == "tags":
         return tag_search(pd)
     else:
-        return page_not_found()
+        pd.search_type = "items"
+        return item_search(pd)
 
 def item_search(pd):
     offset = (pd.page - 1) * pd.limit
