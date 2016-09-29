@@ -92,7 +92,7 @@ class SiteImage(object):
         try: 
             return result[0][0]
         except IndexError:
-            raise NoImage(uid)
+            raise NoImage(self.uid)
 
     def reparent(self, new_parent):
         self.parent = new_parent
