@@ -31,7 +31,7 @@ def save_image_locally(image_id, con):
         handler.write(img_data)
 
 # get the scarfage json
-scarfjson_url = "/item/search?page=&limit="+NUM+"&query=&sort=added"
+scarfjson_url = "/item/search?type=items&page=&limit="+NUM+"&query=&sort=added"
 headers = {"Accept": "application/json"}
 
 conn = httplib.HTTPSConnection("www.scarfage.com")
