@@ -4,6 +4,7 @@
 import httplib, json, csv
 import requests
 import sys
+import os.path
 
 #
 # import from scarfage json the latest scarf data.
@@ -24,14 +25,17 @@ def get_pretty_print(json_object):
 def image_url(image_id):
     return "https://www.scarfage.com/image/"+str(image_id)+"/full"
 
-#retrieve scarf image, and save in local folder named 'testimgs'
+# retrieve scarf image, and save in local folder named 'testimgs'
+# skip duplicates...
 def save_image_locally(image_id, con):
-    img_data = requests.get(image_url(image_id)).content
-    with open('testimgs/'+str(image_id)+'.jpg', 'wb') as handler:
-        handler.write(img_data)
+    filepath='./testimgs/'+str(image_id)+'.jpg'
+    if not os.path.isfile(filepath):
+        img_data = requests.get(image_url(image_id)).content
+        with open(filepath, 'wb') as handler:
+            handler.write(img_data)
 
 # get the scarfage json
-scarfjson_url = "/item/search?page=&limit="+NUM+"&query=&sort=added"
+scarfjson_url = "/item/search?type=items&page=&limit="+NUM+"&query=&sort=added"
 headers = {"Accept": "application/json"}
 
 conn = httplib.HTTPSConnection("www.scarfage.com")
@@ -53,8 +57,8 @@ for scarf in data:
     scarfdata['image1'] = ""
     scarfdata['image0'] = ""
     for i in range(len(scarfdata['images'])):
-        # uncomment next line to pull EVERY image to your local folder
-        # save_image_locally(scarf['images'][i], conn)
+        # uncomment next line to pull EVERY new image to your local folder
+        save_image_locally(scarf['images'][i], conn)
         scarfdata['image'+str(i)] = image_url(scarfdata['images'][i])
 
     # print get_pretty_print(scarfdata)
