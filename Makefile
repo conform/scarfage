@@ -30,8 +30,7 @@ docs: venv .docs
 	. venv/bin/activate && sphinx-apidoc -lo docs/source/ scarf
 	. venv/bin/activate && sphinx-build docs/source/ docs
 
-tempfile := $(shell tempfile)
-# tempfile := $(shell mktemp) # macOS
+tempfile := $(shell mktemp)
 
 gh-pages: clean .gh-pages docs
 	-rm *
