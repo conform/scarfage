@@ -31,6 +31,7 @@ docs: venv .docs
 	. venv/bin/activate && sphinx-build docs/source/ docs
 
 tempfile := $(shell tempfile)
+# tempfile := $(shell mktemp) # macOS
 
 gh-pages: clean .gh-pages docs
 	-rm *
@@ -44,7 +45,7 @@ gh-pages: clean .gh-pages docs
 	git checkout master
 	git branch -D gh-pages
 	cp ${tempfile} scarf/config.py
-	
+
 .gh-pages:
 	cp scarf/config.py ${tempfile}
 	git checkout -b gh-pages
