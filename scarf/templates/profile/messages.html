@@ -27,8 +27,8 @@
 
         {% for pm in pd.profileuser.messages() %}
         {% if pm.from_user != pd.authuser.username %}
-        <tr>
-            <td> <a href="/user/{{ pd.authuser.username }}/pm/{{ pm.uid_obfuscated }}/delete"> <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </a> </td> 
+        <tr id="message-{{ pm.uid_obfuscated }}">
+            <td> <a data-user="{{ pd.authuser.username }}" data-id="{{ pm.uid_obfuscated }}" class="message-delete"> <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </a> </td> 
 
             <td>
             <a href="/user/{{ pd.authuser.username }}/pm/{{ pm.uid_obfuscated }}">
@@ -62,9 +62,9 @@
 
         {% for pm in pd.profileuser.messages() %}
         {% if pm.from_uid == pd.authuser.uid %}
-            <tr>
+            <tr id="message-{{ pm.uid_obfuscated }}">
 
-            <td> <a href="/user/{{ pd.authuser.username }}/pm/{{ pm.uid_obfuscated }}/delete"> <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </a> </td> 
+            <td> <a data-user="{{ pd.authuser.username }}" data-id="{{ pm.uid_obfuscated }}" class="message-delete"> <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> </a> </td> 
 
             <td>
             <a href="/user/{{ pd.authuser.username }}/pm/{{ pm.uid_obfuscated }}">{{ pm.subject }}</a>

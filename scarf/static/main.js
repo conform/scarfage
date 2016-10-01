@@ -39,9 +39,30 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip().click(function(e) {
         $(this).tooltip('hide');
     });
+
+    $('.message-delete').click(function (e) {
+        var dataid = $(this).attr('data-id');
+        var user = $(this).attr('data-user');
+        var success = function () { $('#message-' + dataid).remove(); };
+        message_action(user, dataid, 'delete', success);
+        return false;
+    });
 });
 
 var url = document.location.href;
+
+function message_action(user, messageid, action, success) {
+    $.ajax({
+      url: '/user/' + user + '/pm/' + messageid + '/' + action,
+      type:"POST",
+      contentType:"application/json; charset=utf-8",
+      dataType:"json",
+      success: success,
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+          //alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+      }
+    })
+}
 
 new Clipboard('.copy-url', {
   text: function() {

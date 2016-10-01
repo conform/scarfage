@@ -7,3 +7,7 @@
 .copy-url:hover {
     cursor: pointer; cursor: hand;
 }
+
+.message-delete:hover {
+    cursor: pointer; cursor: hand;
+}

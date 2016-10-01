@@ -26,9 +26,6 @@ def itemaction(item_id, action):
 
     Update or query the logged in user's record for an item.
 
-    If a POST request is received then the current record is returned instead of a redirect back to the previous page.
-    Setting the accept:application/json header will always return JSON regardless of request type.
-
     :Allowed actions:
      * 'status'    - Return the item's current status
      * 'have'      - Mark an item as part of the user's collection
@@ -67,7 +64,7 @@ def itemaction(item_id, action):
         except (NoItem, KeyError, ValueError):
             return page_not_found()
 
-        if request.method == 'POST' or request_wants_json():
+        if request_wants_json():
             return get_record()
     else:
         if request_wants_json():

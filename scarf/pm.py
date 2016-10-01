@@ -29,11 +29,11 @@ def viewpm(username, messageid):
 
         return render_template('pm.html', pd=pd)
 
-@app.route('/user/<username>/pm/<messageid>/<action>')
+@app.route('/user/<username>/pm/<messageid>/<action>', methods=['GET', 'POST'])
 def pm_action(username, messageid, action):
     """
     :URL: /user/<username>/pm/<messageid>/<action>
-    :Methods: GET
+    :Methods: GET, POST
     :Actions:
         * read
         * unread

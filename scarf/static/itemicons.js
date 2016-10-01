@@ -129,20 +129,27 @@ $(document).ready(function(){
     function item_action(itemid, dataid, action, update) {
        if (itemid != null) {
            lock(dataid);
+
+           if (action == 'status') {
+                var type = 'GET';
+           } else {
+                var type = 'POST';
+           }
+
            $.ajax({
-              type: "POST",
-              // all JS requests should be application/json even if not POST
-              accepts: "application/json",
+              type:type,
+              contentType:"application/json; charset=utf-8",
+              dataType:"json",
               url: '/item/' + itemid + '/' + action,
               success: function (itemstatus) {
-                  var obj = jQuery.parseJSON( itemstatus );
-                  update(dataid, obj);
+                  //var obj = jQuery.parseJSON( itemstatus );
+                  update(dataid, itemstatus);
                   unlock(dataid);
               },
-              error: function(XMLHttpRequest, textStatus, errorThrown) { 
-                  //alert("Status: " + textStatus); alert("Error: " + errorThrown); 
-              }    
-           });
+              error: function(XMLHttpRequest, textStatus, errorThrown) {
+                  alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+              }
+           })
        }
     }
 });
