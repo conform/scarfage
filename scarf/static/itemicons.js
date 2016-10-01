@@ -142,12 +142,11 @@ $(document).ready(function(){
               dataType:"json",
               url: '/item/' + itemid + '/' + action,
               success: function (itemstatus) {
-                  //var obj = jQuery.parseJSON( itemstatus );
                   update(dataid, itemstatus);
                   unlock(dataid);
               },
               error: function(XMLHttpRequest, textStatus, errorThrown) {
-                  alert("Status: " + textStatus); alert("Error: " + errorThrown); 
+                  //alert("Status: " + textStatus); alert("Error: " + errorThrown); 
               }
            })
        }

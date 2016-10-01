@@ -11,14 +11,25 @@
 <a href="/item/{{ pd.img.parent }}">Back to "{{ pd.item_by_uid(pd.img.parent) }}"</a><br />
 
 {% if pd.authuser is defined and pd.authuser.accesslevel >= 10 %}
-<div class="page-header"> <h4>Crop Tool</h4> </div>
+<div class="page-header"> <h4>Image Editor</h4> </div>
 
-<p>Cropping an image makes a copy, you'll still need to go back and delete the old images.</p><br><br>
+&nbsp;&nbsp;&nbsp;
+<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?degrees={{ (pd.degrees|int + 90) % 360 }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}"><span class="glyphicon glyphicon-share-alt flip-glyphicon" aria-hidden="true"></span> Rotate Left</a>
+&nbsp;&nbsp;&nbsp;
+<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?degrees={{ (pd.degrees|int + 180) % 360 }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Flip</a>
+&nbsp;&nbsp;&nbsp;
+<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?degrees={{ (pd.degrees|int + 270) % 360 }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Rotate Right</a>
+&nbsp;&nbsp;&nbsp;
+<a id="cropButton" class="btn btn-sm btn-default" href=""><span class="glyphicon glyphicon-scissors" aria-hidden="true"></span> Crop</a>
+&nbsp;&nbsp;&nbsp;
+<a class="btn btn-sm btn-danger" href="/image/{{ pd.img.uid }}"> Cancel </a>
+&nbsp;&nbsp;&nbsp;
+<a class="btn btn-sm btn-primary" href="/image/{{ pd.img.uid }}/edit?degrees={{ pd.degrees }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}&save=true"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save as New</a>
+&nbsp;&nbsp;&nbsp;
 
-<img class="photo" id="photo" src="{{pd.prefix}}/image/{{ pd.img.uid }}/full" alt="{{ pd.img.tag }}"><br>
+<hr>
 
-<a id="cropButton" class="btn btn-sm btn-default" href=""><span class="glyphicon glyphicon-scissors" aria-hidden="true"></span> Crop & Copy</a>
-&nbsp;&nbsp;&nbsp;<a class="btn btn-sm btn-danger" href="/item/{{ pd.img.parent }}">Cancel</a>
+<img class="photo" id="photo" src="/image/{{ pd.img.uid }}/edit?degrees={{ pd.degrees }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}&preview=true" alt="{{ pd.img.tag }}"><br>
 
 </div>
 
@@ -27,7 +38,7 @@
 {% endblock %}
 
 {% block script %}
-  <script type="text/javascript" src="{{ pd.prefix }}/static/tapmodo-Jcrop-1902fbc/js/jquery.Jcrop.min.js"></script>
+<script type="text/javascript" src="{{ pd.prefix }}/static/tapmodo-Jcrop-1902fbc/js/jquery.Jcrop.min.js"></script>
 
 <script type="text/javascript">
     $(function(){
@@ -43,7 +54,7 @@
 
     function updateButton(c)
     {
-            $('#cropButton').attr('href', '/image/{{ pd.img.uid }}/crop/' + parseInt(c.x) + '/' + parseInt(c.y) + '/' + parseInt(c.x2) + '/' + parseInt(c.y2));
+            $('#cropButton').attr('href', '/image/{{ pd.img.uid }}/edit?degrees={{ pd.degrees }}&x1=' + parseInt(c.x) + '&y1=' + parseInt(c.y) + '&x2=' + parseInt(c.x2) + '&y2=' + parseInt(c.y2));
             $("#cropButton").removeAttr("disabled");
     };
 

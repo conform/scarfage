@@ -147,7 +147,7 @@ def serve_avatar(username):
             return page_not_found()
 
         resp = make_response(base64.b64decode(avatar))
-        resp.content_type = "image/png"
+        resp.content_type = "image/jpeg"
         return resp
     except (IOError, NoUser):
         return page_not_found()

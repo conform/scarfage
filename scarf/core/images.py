@@ -65,6 +65,52 @@ class NoImage(Exception):
     def __init__(self, item):
         Exception.__init__(self, item)
 
+class SiteImageEditor(object):
+    def __init__(self, uid=None, original=None):
+        if original:
+            self.uid = None
+            self.original = original
+            self.image_string = cStringIO.StringIO(original)
+        else:
+            self.uid = uid
+            image = SiteImage.create(uid)
+            self.parent = image.parent
+            self.tag = image.tag
+
+            self.original = image.image()
+            self.image_string = cStringIO.StringIO(base64.b64decode(self.original))
+            self.pil_image = Image.open(self.image_string).convert('RGBA')
+
+    def crop(self, x1, y1, x2, y2):
+        self.pil_image = self.pil_image.crop((x1, y1, x2, y2))
+
+    def rotate(self, degrees):
+        rotated = self.pil_image.rotate(degrees, expand=True)
+        fff = Image.new('RGBA', rotated.size, (255,)*4) # Mask for white background
+        self.pil_image = Image.composite(rotated, fff, rotated)
+
+    def size(self):
+        return self.pil_image.size
+
+    def preview(self):
+        output = cStringIO.StringIO()
+        self.pil_image.save(output, format="JPEG")
+        output.seek(0)
+        return output
+
+    def save(self, userid, ip, overwrite=False):
+        sql_image = base64.b64encode(self.preview().read())
+
+        if overwrite:
+            sql = "update images set image = %(image)s where uid = %(uid)s;"
+        else:
+            sql = "insert into images (tag, parent, userid, image, ip) values (%(tag)s, %(parent)s, %(userid)s, %(image)s, %(ip)s);"
+
+        doquery(sql, { 'tag': self.tag, 'userid': userid, 'ip': utility.ip_uid(ip), 'parent': self.parent, 'image': sql_image})
+
+        sql = "select last_insert_id();"
+        return doquery(sql)[0][0]
+
 siteimage_cache = dict()
 class SiteImage(object):
     @classmethod
@@ -145,20 +191,3 @@ class SiteImage(object):
         image_string = cStringIO.StringIO(base64.b64decode(self.image()))
         im = Image.open(image_string)
         return im.size
-
-    def crop(self, userid, ip, x1, y1, x2, y2):
-        image_string = cStringIO.StringIO(base64.b64decode(self.image()))
-        im = Image.open(image_string)
-        cropped = im.crop((x1, y1, x2, y2))
-
-        output = cStringIO.StringIO()
-        cropped.save(output, format="JPEG")
-        img_str = output.getvalue()
-        output.close()
-
-        sql_image = base64.b64encode(img_str)
-        sql = "insert into images (tag, parent, userid, image, ip) values (%(tag)s, %(parent)s, %(userid)s, %(image)s, %(ip)s);"
-        doquery(sql, { 'tag': self.tag, 'userid': userid, 'ip': utility.ip_uid(ip), 'parent': self.parent, 'image': sql_image})
-
-        sql = "select last_insert_id();"
-        return doquery(sql)[0][0]
