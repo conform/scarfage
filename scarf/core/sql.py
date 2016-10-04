@@ -267,6 +267,7 @@ def doupsert(query, safe=False):
         logger.error("deprecated function doupsert called by " + calframe[1][3])
 
     get_db()
+    cursor = db.cursor()
     cursor.execute(query)
     db.commit()
     cursor.close()
