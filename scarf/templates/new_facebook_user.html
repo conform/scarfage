@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block body %}
+
+{% if pd.authuser is defined %}
+<div class="col-md-12">
+    <div align="center">
+
+      <div class="page-header"><h4>Link Facebook Account</h4></div>
+
+      <form role="form" action="/user/{{ pd.authuser.username }}/facebook/link" method="post">
+
+        <div class="form-group">
+            <label class="confirm-label" for="confirm">Enter your password to confirm:</label>
+            <input type="password" placeholder="Password" name="password" required><br />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-success">Link to Facebook</button><br><br>
+            <p><a href="/forgotpw" class="btn btn-success">Forgot Password</a></p><br>
+            <p><h4>Don't want to link this account?</h4><br><a class="btn btn-success" href="/logout">Log Out</a></p><br>
+        </div>
+      </form>
+  </div>
+</div>
+
+{% else %}
+
+<div class="col-md-12">
+    <div align="center">
+
+      <div class="page-header"><h4>Welcome to Scarfage!</h4></div>
+
+      <form role="form" action="/newuser/facebook" method="post">
+        <div class="form-group">
+          <label class="newuser-label" for="username">Username (doesn't have to be your real name):</label>
+          <input type=text name=username value="{{ pd.facebook_name }}" required><br />
+        <div>
+
+        <div class="form-group">
+          <label class="newuser-label" for="email">Email address (should probably be a working email address):</label>
+          <input type=text name=email value="{{ pd.facebook_email }}" required><br />
+        <div><br>
+
+        <div class="form-group">
+          <input class="button btn" type=submit value="Create Account"><br><br>
+            <p><h4>Already have an account? Log in to link it.</h4><br><br>
+        <div>
+      </form><br><br>
+  </div>
+</div>
+
+{% endif %}
+
+{% endblock %}

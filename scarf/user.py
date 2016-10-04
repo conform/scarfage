@@ -11,7 +11,7 @@ app.secret_key = config.SECRETKEY
 
 logger = logging.getLogger(__name__)
 
-def check_new_user(request):
+def check_new_user(request, nopass=False):
     ret = True
     try:
         user = SiteUser.create(request.form['username'])
@@ -22,22 +22,23 @@ def check_new_user(request):
             flash("You may not create multiple users with the same email address.")
             return False
 
-        valid = string.ascii_letters + string.digits
+        valid = string.ascii_letters + string.digits + ' '
         for c in request.form['username']:
             if c not in valid:
                 flash("Invalid character in username: " + c)
                 ret = False
 
-        pass1 = request.form['password']
-        pass2 = request.form['password2']
+        if not nopass:
+            pass1 = request.form['password']
+            pass2 = request.form['password2']
 
-        if pass1 != pass2:
-            flash("The passwords entered don't match.")
-            ret = False
-        else:
-            if len(pass1) < 6:
-                flash("Your password is too short, it must be at least 6 characters")
+            if pass1 != pass2:
+                flash("The passwords entered don't match.")
                 ret = False
+            else:
+                if len(pass1) < 6:
+                    flash("Your password is too short, it must be at least 6 characters")
+                    ret = False
 
         if not re.match("[^@]+@[^@]+\.[^@]+", request.form['email']):
             flash("Invalid email address")
@@ -52,16 +53,17 @@ def login():
             user = SiteUser.create(request.form['username'])
         except NoUser as e:
             flash('Login unsuccessful.')
-            return redirect(url_for('index'))
+            return redirect_back(url_for('index'))
 
         try:
             user.authenticate(request.form['password'])
         except (NoUser, AuthFail) as e:
             if user.accesslevel is 0:
                 flash('Your account has been banned')
+                session.pop('username', None)
             else:
                 flash('Login unsuccessful.')
-            return redirect(url_for('index'))
+            return redirect_back(url_for('index'))
 
         user.seen()
 
@@ -85,7 +87,7 @@ def newuser():
             if not check_new_user(request):
                 pd.username = request.form['username']
                 pd.email = request.form['email']
-                return render_template('newuser.html', pd=pd)
+                return render_template('new_user.html', pd=pd)
 
             if not new_user(request.form['username'], request.form['password'], request.form['email'], request.remote_addr):
                 return render_template('error.html', pd=pd)
@@ -100,11 +102,11 @@ def newuser():
             flash('Welcome ' + request.form['username'])
             return redirect(url_for('index'))
 
-        return render_template('newuser.html', pd=pd)
+        return render_template('new_user.html', pd=pd)
 
 @app.route('/logout')
 def logout():
-    # remove the username from the session if it's there
-    session.pop('username', None)
+    for key in session.keys():
+        session.pop(key, None) 
     flash('You were successfully logged out')
     return redirect_back('index')

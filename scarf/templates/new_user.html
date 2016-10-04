@@ -2,7 +2,7 @@
 
 {% block body %}
 
-<div id="content" class="col-md-6">
+<div id="content" class="col-md-12" style="text-align: center;">
   <div id="signupform">
 
       <div class="page-header"><h4>Sign Up</h4></div>
@@ -25,13 +25,18 @@
 
         <div class="form-group">
           <label class="newuser-label" for="email">Email address:</label>
-          <input type=text name=email value="{{ pd.email }}" required><br />
+          <input type=text name=email value="{{ pd.email }}" required><br /><br />
         <div>
 
         <div class="form-group">
-          <input class="button btn" type=submit value=Submit>
+          <input class="button btn" type=submit value="Create Account"><br><br>
         <div>
       </form>
+
+        <h4>- or -</h4><br>
+
+      <p><a href="/login_with_facebook" class="btn btn-success">Use your Facebook Sign in</a></p>
+      <p>You can set a username and email after signing in with Facebook.</p>
 
   </div>
 </div>

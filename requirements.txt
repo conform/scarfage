@@ -11,3 +11,5 @@ pytz
 bleach
 sphinx
 fake-factory
+urllib3[secure]
+requests_oauthlib

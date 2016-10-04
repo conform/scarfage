@@ -76,6 +76,22 @@ def uid_by_user(username):
     except IndexError:
         return None
 
+def user_by_oauth(uid, provider):
+    """
+    Lookup username by oauth id and provider
+
+    :param uid: UID of a user
+    :param provider: Provider, only facebook for now
+    :return: None or the username
+    """
+
+    sql = "select username from users where uid = %(uid)s;"
+    result = doquery(sql, { 'uid': uid })
+    try:
+        return result[0][0]
+    except IndexError:
+        return None
+
 class NoUser(Exception):
     def __init__(self, username):
         Exception.__init__(self, username)
@@ -390,7 +406,7 @@ class SiteUser(object):
             logger.info('AuthFail for user {}: invalid password'.format(self.username))
             raise AuthFail(self.username)
 
-        logger.info('Successful authentication for user {}'.format(self.username))
+        logger.info('Successful password authentication for user {}'.format(self.username))
         return None
 
     def newaccesslevel(self, accesslevel):

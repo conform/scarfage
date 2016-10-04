@@ -87,6 +87,14 @@ class PageData(object):
         self.render_markdown_safe = render_markdown_safe
         self.SiteItem = core.SiteItem
 
+        try:
+            self.facebook_id = session['facebook_id']
+            self.facebook_token = session['facebook_token']
+            self.facebook_email = session['facebook_email']
+            self.facebook_name = session['facebook_name']
+        except:
+            pass
+
         if 'username' in session:
             try:
                 self.authuser = core.SiteUser.create(session['username'])

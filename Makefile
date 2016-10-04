@@ -72,3 +72,6 @@ dumpdb:
 
 importdb:
 	mysql --user=${username} --password=${passwd} -h ${dbhost} ${dbname} < scarfage.sql
+
+logindb:
+	mysql --user=${username} --password=${passwd} -h ${dbhost} ${dbname}

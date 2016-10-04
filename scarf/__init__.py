@@ -17,3 +17,4 @@ import scarf.tags
 import scarf.stats
 import scarf.fbimage
 import scarf.search
+import scarf.fbauth
