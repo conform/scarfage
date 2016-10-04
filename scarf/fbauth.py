@@ -100,6 +100,12 @@ def fblogin():
         session['facebook_email'] = decoded['email']
         session.permanent = True
 
+        # This profile update block won't be needed out of testing
+        profile = user.profile()
+        profile.profile['facebook_id'] = session['facebook_id']
+        profile.update()
+        # end block
+
         flash('You were successfully logged in')
         logger.info('Successful Facebook auth for {} (ID {})'.format(user.username, decoded['id']))
         return redirect_back(url_for('index'))
@@ -133,6 +139,11 @@ def link_facebook_account(username):
 
         user_key = 'oauth-facebook-{}'.format(session['facebook_id'])
         new_key(user_key, session['username'])
+
+        profile = user.profile()
+        profile.profile['facebook_id'] = session['facebook_id']
+        profile.update()
+
         flash('Your account is now linked to Facebook.')
         logger.info('Facebook auth linked for username {} ID {} ip {}'.format(user.username, session['facebook_id'], request.remote_addr))
         return redirect(url_for('index'))
@@ -158,6 +169,9 @@ def new_facebook_user():
     try:
         user = SiteUser.create(request.form['username'])
         session['username'] = user.username
+        profile = user.profile()
+        profile.profile['facebook_id'] = session['facebook_id']
+        profile.update()
     except (NoUser, AuthFail):
         return render_template('error.html', pd=pd)
 

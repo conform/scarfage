@@ -101,7 +101,7 @@
             <li>Member since: {{ pd.localtime(pd.profileuser.joined) }}</li>
             <li><a href="/user/{{ pd.profileuser.username }}/prefs">Edit your profile</a></li>
             <li><a href="/logout">Logout</a></li>
-            <li>{% if pd.facebook_id is defined %}This account is linked to Facebook{% else %}<a href="/login_with_facebook">Link account to Facebook</a>{% endif %}</li>
+            <li>{% if 'facebook_id' in profile %}This account is linked to Facebook{% else %}<a href="/login_with_facebook">Link account to Facebook</a>{% endif %}</li>
         </ul>
 
     <div class="page-header"><h4>Game Day Scarf</h4></div>
