@@ -159,62 +159,70 @@ def edit_image(img_id):
     """
     :URL: /image/<img_id>/edit
 
-    Render a template for editing an image.
+    Very basic image editor. Applies a list of operations to an image
+    and either presents a preview back to the user or saves it to the
+    database as a new image.
     """
 
     pd = PageData()
     min_size = 200
 
-    x1 = request.args.get('x1')
-    y1 = request.args.get('y1')
-    x2 = request.args.get('x2')
-    y2 = request.args.get('y2')
-    preview = request.args.get('preview')
-    save = request.args.get('save')
-    degrees = request.args.get('degrees')
-
     try:
         img = SiteImageEditor(img_id)
-        size = img.size()
     except NoImage:
         return page_not_found()
 
-    if x1:
-        try:
-            x1 = int(x1)
-            y1 = int(y1)
-            x2 = int(x2)
-            y2 = int(y2)
-        except:
-            return page_not_found()
+    preview = request.args.get('preview')
+    save = request.args.get('save')
 
-        new_width = x2 - x1
-        new_height = y2 - y1
+    pd.img = img
+    pd.ops = ''
+    pd.num_ops = 0
 
-        if new_width < min_size:
-            flash("The selection is too narrow, please make another selection. If your image is below {} pixels in width you will not be able to crop it.".format(min_size))
-            return redirect_back(url_for('index'))
-        if new_height < min_size:
-            flash("The selection is too short, please make another selection. If your image is below {} pixels in width you will not be able to crop it.".format(min_size))
-            return redirect_back(url_for('index'))
+    for op in range(1,20):
+        command = request.args.get('op{}'.format(op))
+        if command:
+            if command == 'rotate':
+                degrees = request.args.get('op{}_degrees'.format(op))
 
-        img.crop(x1, y1, x2, y2)
-    else:
-        x1 = 0
-        y1 = 0
-        x2 = size[0]
-        y2 = size[1]
+                try:
+                    degrees = int(degrees)
+                except:
+                    return page_not_found()
 
-    if degrees:
-        try:
-            degrees = int(degrees)
-        except:
-            return page_not_found()
+                img.rotate(degrees)
+                pd.ops = "{}&op{}=rotate&op{}_degrees={}".format(pd.ops, op, op, degrees)
+                pd.num_ops = op
+            elif command == 'crop':
+                x1 = request.args.get('op{}_x1'.format(op))
+                y1 = request.args.get('op{}_y1'.format(op))
+                x2 = request.args.get('op{}_x2'.format(op))
+                y2 = request.args.get('op{}_y2'.format(op))
 
-        img.rotate(degrees)
-    else:
-        degrees = 0
+                try:
+                    x1 = int(x1)
+                    y1 = int(y1)
+                    x2 = int(x2)
+                    y2 = int(y2)
+                except:
+                    return page_not_found()
 
+                new_width = x2 - x1
+                new_height = y2 - y1
+
+                if new_width < min_size:
+                    flash("The selection is too narrow, please make a larger selection. If your image is below {} pixels in width you will not be able to crop it.".format(min_size))
+                    return redirect_back(url_for('index'))
+                if new_height < min_size:
+                    flash("The selection is too short, please make a larger selection. If your image is below {} pixels in width you will not be able to crop it.".format(min_size))
+                    return redirect_back(url_for('index'))
+
+                img.crop(x1, y1, x2, y2)
+                pd.ops = "{base}&op{op}=crop&op{op}_x1={x1}&op{op}_y1={y1}&op{op}_x2={x2}&op{op}_y2={y2}".format(base=pd.ops, op=op, x1=x1, y1=y1, x2=x2, y2=y2)
+                pd.num_ops = op
+            else:
+                return page_not_found()
+ 
     if preview == 'true':
         return send_file(img.preview(), mimetype='image/jpeg')
 
@@ -226,12 +234,5 @@ def edit_image(img_id):
 
         new_img = img.save(userid, request.remote_addr)
         return redirect('/image/' + str(new_img))
-
-    pd.x1 = x1
-    pd.y1 = y1
-    pd.x2 = x2
-    pd.y2 = y2
-    pd.degrees = degrees
-    pd.img = img
 
     return render_template('imageedit.html', pd=pd)

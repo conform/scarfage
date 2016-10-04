@@ -13,23 +13,33 @@
 {% if pd.authuser is defined and pd.authuser.accesslevel >= 10 %}
 <div class="page-header"> <h4>Image Editor</h4> </div>
 
+{% set op = pd.num_ops + 1 %}
+{% set size = pd.img.size() %}
+
+<strong>Width:</strong> {{ size[0] }} </br>
+<strong>Height:</strong> {{ size[1] }} </br>
+
+<hr>
+
 &nbsp;&nbsp;&nbsp;
-<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?degrees={{ (pd.degrees|int + 90) % 360 }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}"><span class="glyphicon glyphicon-share-alt flip-glyphicon" aria-hidden="true"></span> Rotate Left</a>
+<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?{{ pd.ops }}&op{{op}}=rotate&op{{op}}_degrees=90"><span class="glyphicon glyphicon-share-alt flip-glyphicon" aria-hidden="true"></span> Rotate Left</a>
 &nbsp;&nbsp;&nbsp;
-<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?degrees={{ (pd.degrees|int + 180) % 360 }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Flip</a>
+<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?{{ pd.ops }}&op{{op}}=rotate&op{{op}}_degrees=180"><span class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span> Flip</a>
 &nbsp;&nbsp;&nbsp;
-<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?degrees={{ (pd.degrees|int + 270) % 360 }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Rotate Right</a>
+<a class="btn btn-sm btn-default" href="/image/{{ pd.img.uid }}/edit?{{ pd.ops }}&op{{op}}=rotate&op{{op}}_degrees=270"><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> Rotate Right</a>
 &nbsp;&nbsp;&nbsp;
 <a id="cropButton" class="btn btn-sm btn-default" href=""><span class="glyphicon glyphicon-scissors" aria-hidden="true"></span> Crop</a>
 &nbsp;&nbsp;&nbsp;
+<a class="btn btn-sm btn-default" onclick="window.history.back(); return false;"> Undo </a>
+&nbsp;&nbsp;&nbsp;
 <a class="btn btn-sm btn-danger" href="/image/{{ pd.img.uid }}"> Cancel </a>
 &nbsp;&nbsp;&nbsp;
-<a class="btn btn-sm btn-primary" href="/image/{{ pd.img.uid }}/edit?degrees={{ pd.degrees }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}&save=true"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save as New</a>
+<a class="btn btn-sm btn-primary" href="/image/{{ pd.img.uid }}/edit?{{ pd.ops }}&save=true"><span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save as New</a>
 &nbsp;&nbsp;&nbsp;
 
 <hr>
 
-<img class="photo" id="photo" src="/image/{{ pd.img.uid }}/edit?degrees={{ pd.degrees }}&x1={{ pd.x1 }}&y1={{ pd.y1 }}&x2={{ pd.x2 }}&y2={{ pd.y2 }}&preview=true" alt="{{ pd.img.tag }}"><br>
+<img class="photo" id="photo" src="/image/{{ pd.img.uid }}/edit?{{ pd.ops }}&preview=true" alt="{{ pd.img.tag }}"><br>
 
 </div>
 
@@ -54,7 +64,8 @@
 
     function updateButton(c)
     {
-            $('#cropButton').attr('href', '/image/{{ pd.img.uid }}/edit?degrees={{ pd.degrees }}&x1=' + parseInt(c.x) + '&y1=' + parseInt(c.y) + '&x2=' + parseInt(c.x2) + '&y2=' + parseInt(c.y2));
+            {% set op = pd.num_ops + 1 %}
+            $('#cropButton').attr('href', '/image/{{ pd.img.uid }}/edit?{{ pd.ops|safe }}&op{{op}}=crop&op{{op}}_x1=' + parseInt(c.x) + '&op{{op}}_y1=' + parseInt(c.y) + '&op{{op}}_x2=' + parseInt(c.x2) + '&op{{op}}_y2=' + parseInt(c.y2));
             $("#cropButton").removeAttr("disabled");
     };
 
