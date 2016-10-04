@@ -245,8 +245,14 @@ def get_db():
         if db is None:
             logger.info("Connecting to db host")
             db = MySQLdb.connect(host=config.DBHOST, db=config.DBNAME, user=config.DBUSER, passwd=config.DBPASS)
-
             db.set_character_set('utf8')
+            cursor = db.cursor()
+            cursor.execute('SET NAMES utf8;')
+            cursor.execute('SET CHARACTER SET utf8;')
+            cursor.execute('SET character_set_connection=utf8;')
+            cursor.execute('SET sql_mode=\'TRADITIONAL\'')
+            db.commit()
+            cursor.close()
 
     except MySQLdb.MySQLError as e:
         if e[0] >= 2000:
@@ -261,11 +267,6 @@ def doupsert(query, safe=False):
         logger.error("deprecated function doupsert called by " + calframe[1][3])
 
     get_db()
-    cursor = db.cursor()
-    cursor.execute('SET NAMES utf8;')
-    cursor.execute('SET CHARACTER SET utf8;')
-    cursor.execute('SET character_set_connection=utf8;')
-
     cursor.execute(query)
     db.commit()
     cursor.close()
@@ -277,21 +278,16 @@ def doquery(query, data=None, select=True):
     global db
 
     try:
-        if db is None:
-            logger.info("Connecting to db host")
-            db = MySQLdb.connect(host=config.DBHOST, db=config.DBNAME, user=config.DBUSER, passwd=config.DBPASS)
-
-            db.set_character_set('utf8')
-            cursor = db.cursor()
-            cursor.execute('SET NAMES utf8;')
-            cursor.execute('SET CHARACTER SET utf8;')
-            cursor.execute('SET character_set_connection=utf8;')
-            cursor.execute('SET sql_mode=\'TRADITIONAL\'')
-            db.commit()
-            cursor.close()
-
+        get_db()
         cur = db.cursor()
-        cur.execute(query, data)
+        try:
+            cur.execute(query, data)
+        except MySQLdb.OperationalError, e:            
+            if e[0] == 2006:
+                get_db()
+                cur.execute(query, data)
+            else:
+                raise
 
         if 'SQLCONFIG' in config.__dict__:
             logger.info((query, data, 'rows: ' + str(cur.rowcount)))
@@ -305,7 +301,6 @@ def doquery(query, data=None, select=True):
         cur.close()
 
         return data
-
     except MySQLdb.MySQLError as e:
         if e[0] >= 2000:
             db = None
