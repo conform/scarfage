@@ -117,7 +117,7 @@ def fblogin():
 
         pd = PageData();
         pd.title = "Log in with Facebook"
-        logger.info('Successful Facebook auth for ID {} but this person has no linked account'.format(user.username))
+        logger.info('Successful Facebook auth for ID {} but this person has no linked account'.format(decoded['id']))
         return render_template('new_facebook_user.html', pd=pd)
 
     flash('Facebook authentication failed :(')
