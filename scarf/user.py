@@ -107,6 +107,7 @@ def newuser():
 @app.route('/logout')
 def logout():
     for key in session.keys():
-        session.pop(key, None) 
+        if 'facebook' not in key: 
+            session.pop(key, None) 
     flash('You were successfully logged out')
     return redirect_back('index')
