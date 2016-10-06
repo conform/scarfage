@@ -108,13 +108,5 @@ def newuser():
 def logout():
     for key in session.keys():
         session.pop(key, None) 
-
     flash('You were successfully logged out')
-
-    if request.args.get('index') is not None:
-        return redirect(url_for('index'))
-
-    if request.args.get('facebook') is not None:
-        return redirect(url_for('fblogin'))
-
     return redirect_back('index')
