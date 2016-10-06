@@ -22,7 +22,7 @@ def redirect_back(endpoint, **values):
                ref_url.netloc == test_url.netloc
 
     target = request.referrer
-    if not target or not is_safe_url(target):
+    if not target or not is_safe_url(target) or 'oauth' in target:
         try:
             target = url_for(endpoint, **values)
         except BuildError:
