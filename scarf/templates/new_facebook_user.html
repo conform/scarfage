@@ -6,6 +6,8 @@
 <div class="col-md-12">
     <div align="center">
 
+      <h3>Hello there {{ pd.authuser.username }}</h3><br />
+
       <div class="page-header"><h4>Link Facebook Account</h4></div>
 
       <form role="form" action="/user/{{ pd.authuser.username }}/facebook/link" method="post">
