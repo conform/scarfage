@@ -134,7 +134,7 @@ def link_facebook_account(username):
             user.authenticate(request.form['password'])
         except (NoUser, AuthFail):
             flash('Authentication failed, please check your password and try again.')
-            logger.info('Facebook auth link failed for username {} ID {} ip {}'.format(user.username, session['facebook_id'], request.remote_addr))
+            logger.info('Facebook auth link failed for username {} ip {}'.format(user.username, request.remote_addr))
             return redirect_back(url_for('index'))
 
         user_key = 'oauth-facebook-{}'.format(session['facebook_id'])
