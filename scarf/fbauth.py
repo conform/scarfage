@@ -47,7 +47,7 @@ def fbredirect():
     facebook = facebook_compliance_fix(facebook)
     authorization_url, state = facebook.authorization_url(authorization_base_url)
 
-    logger.info('Facebook redirect for ip {}'.format(request.remote_addr))
+    logger.info('Facebook redirect for ip {}, referrer was {}'.format(request.remote_addr, request.referrer))
     session['facebook_state'] = state
     return redirect('{}&scope=public_profile,email'.format(authorization_url))
 
@@ -59,6 +59,8 @@ def fblogin():
 
     Facebook auth callback URI
     """
+
+    logger.info('Started Facebook auth for {}, referrer was {}'.format(request.remote_addr, request.referrer))
 
     try:
         facebook = OAuth2Session(FB_CLIENT_ID, redirect_uri=redirect_uri(), state=session['facebook_state'])
@@ -128,6 +130,8 @@ def fblogin():
 def link_facebook_account(username):
     pd = PageData();
 
+    logger.info('Started Facebook auth for {} ({}), referrer was {}'.format(username, request.remote_addr, request.referrer))
+
     if 'username' in session:
         try:
             user = SiteUser.create(session['username'])
@@ -153,6 +157,8 @@ def link_facebook_account(username):
 @app.route('/newuser/facebook', methods=['POST'])
 def new_facebook_user():
     pd = PageData();
+
+    logger.info('Started Facebook new user for {}, referrer was {}'.format(request.remote_addr, request.referrer))
 
     if not check_new_user(request, nopass=True):
         pd.username = request.form['username']
