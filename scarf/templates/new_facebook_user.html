@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 
+{% set facebook = true %}
+
 {% block body %}
 
 {% if pd.authuser is defined %}
@@ -20,7 +22,7 @@
         <div class="form-group">
             <button type="submit" class="btn btn-success">Link to Facebook</button><br><br>
             <p><a href="/forgotpw" class="btn btn-success">Forgot Password</a></p><br>
-            <p><h4>Don't want to link this account?</h4><br><a class="btn btn-success" href="/logout">Log Out</a></p><br>
+            <p><h4>Don't want to link this account?</h4><br><a class="btn btn-success" href="/logout?fbauth=true">Log Out</a></p><br>
         </div>
       </form>
   </div>

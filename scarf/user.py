@@ -72,11 +72,11 @@ def login():
         flash('You were successfully logged in')
 
         if request.args.get('fbauth'):
-            return redirect_back(url_for('index'))
+            return redirect_back(url_for('fbauth'))
 
         if not request.args.get('back'):
             return redirect_back(url_for('index'))
-        else
+        else:
             return redirect(url_for('index'))
 
     return redirect(url_for('error'))
@@ -121,5 +121,5 @@ def logout():
 
     if not request.args.get('back'):
         return redirect_back(url_for('index'))
-    else
+    else:
         return redirect(url_for('index'))
