@@ -70,7 +70,11 @@ def login():
         session['username'] = user.username
         session.permanent = True
         flash('You were successfully logged in')
-        return redirect_back('index')
+
+        if not request.args.get('index'):
+            return redirect_back(url_for('index'))
+        else:
+            return redirect(url_for('index'))
 
     return redirect(url_for('error'))
 
@@ -109,5 +113,10 @@ def logout():
     for key in session.keys():
         if 'facebook' not in key: 
             session.pop(key, None) 
+
     flash('You were successfully logged out')
-    return redirect_back('index')
+
+    if not request.args.get('index'):
+        return redirect_back(url_for('index'))
+    else:
+        return redirect(url_for('index'))

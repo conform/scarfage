@@ -108,7 +108,7 @@
                 </div>
 
                 <div class="login-container col-md-12">
-                  <form class="navbar-form no-gutter" role="form" action="/login" method="post">
+                  <form class="navbar-form no-gutter" role="form" action="/login{% if facebook %}?index=true{% endif %}" method="post">
                     <div class="form-group visible-xs">
                         <h4><a href="/newuser" class="forgotpw">Sign up</a></h4>
                     </div>

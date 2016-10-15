@@ -97,6 +97,7 @@ def delete_image(img_id):
         return redirect('/item/' + str(parent))
 
 @app.route('/image/<img_id>/flag')
+@check_logged_in
 def flag_image(img_id):
     """
     :URL: /image/<img_id>/flag
