@@ -71,8 +71,8 @@ def login():
         session.permanent = True
         flash('You were successfully logged in')
 
-        if request.args.get('fbauth'):
-            return redirect_back(url_for('fbauth'))
+        if request.args.get('facebook'):
+            return redirect_back(url_for('fbredirect'))
 
         if not request.args.get('back'):
             return redirect_back(url_for('index'))
@@ -118,6 +118,9 @@ def logout():
             session.pop(key, None) 
 
     flash('You were successfully logged out')
+
+    if request.args.get('facebook'):
+        return redirect_back(url_for('fbredirect'))
 
     if not request.args.get('back'):
         return redirect_back(url_for('index'))
