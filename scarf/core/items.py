@@ -81,8 +81,12 @@ def item_search(query, limit=10, offset=0, sort='name'):
     ret = dict()
     ret['items'] = list()
 
-    sql = 'select count(*) from items where name like %(query)s;'
-    ret['maxresults'] = doquery(sql, {'query': '%{}%'.format(query)})[0][0]
+    (where_clause, params) = item_search_build_where_clause(query)
+    params['limit'] = limit
+    params['offset'] = offset
+
+    sql = 'select count(*) from items where {};'.format(where_clause)
+    ret['maxresults'] = doquery(sql, params)[0][0]
 
     if ret['maxresults'] == 0:
         return ret
@@ -92,13 +96,30 @@ def item_search(query, limit=10, offset=0, sort='name'):
     if sort not in sorts.keys():
         sort = 'name'
 
-    sql = 'select uid from items where upper(name) like upper(%(query)s) order by {} limit %(limit)s offset %(offset)s;'.format(sorts[sort])
-    result = doquery(sql, {'query': '%{}%'.format(query), 'limit': limit, 'offset': offset})
+    sql = 'select uid from items where {} order by {} limit %(limit)s offset %(offset)s;'.format(where_clause, sorts[sort])
+    result = doquery(sql, params)
 
     for item in result:
         ret['items'].append(SiteItem.create(item[0]))
 
     return ret
+
+@memoize_with_expiry(item_cache, long_cache_persist)
+def item_search_build_where_clause(query):
+    query_terms = map(lambda q: '%{}%'.format(q), query.split())
+
+    params = {}
+    clauses = []
+    query_index = 0
+    for term in query_terms:
+        param_name = 'query{}'.format(query_index)
+        params[param_name] = term
+        clauses.append('name like %({})s'.format(param_name))
+        query_index += 1
+
+    where_clause = " AND ".join(clauses)
+    return (where_clause, params)
+
 
 def tag_search(query, limit=10, offset=0, sort='name'):
     ret = dict()
