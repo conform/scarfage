@@ -1,5 +1,6 @@
 import datetime
 import logging
+import re
 
 from sql import upsert, doupsert, doquery, Tree, MySQLdb
 from mail import send_mail
@@ -106,7 +107,20 @@ def item_search(query, limit=10, offset=0, sort='name'):
 
 @memoize_with_expiry(item_cache, long_cache_persist)
 def item_search_build_where_clause(query):
-    query_terms = map(lambda q: '%{}%'.format(q), query.split())
+    query.strip()
+
+    # find quoted strings and extract them from the search query parameter
+    pattern = re.compile('"(.*?)"')
+    query_terms = re.findall(pattern, query)
+
+    # excise the quoted terms
+    query = re.sub(pattern, '', query)
+
+    # add the remaining terms
+    query_terms += query.split()
+
+    # get each term ready for the like clause
+    query_terms = map(lambda q: '%{}%'.format(q), query_terms)
 
     params = {}
     clauses = []
@@ -119,7 +133,6 @@ def item_search_build_where_clause(query):
 
     where_clause = " AND ".join(clauses)
     return (where_clause, params)
-
 
 def tag_search(query, limit=10, offset=0, sort='name'):
     ret = dict()
